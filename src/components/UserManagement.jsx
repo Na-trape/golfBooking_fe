@@ -1,36 +1,34 @@
 import { useState, useEffect } from 'react';
-import productAPI from '../apis/productAPI';
+import userAPI from '../apis/userAPI';
+import { countries } from '../service/Countries';
 
-const ProductManagement = () => {
-
-
-    const [products, setProducts] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState({
+const UserManagement = () => {
+    const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState({
         id: null,
         name: '',
-        price: '',
-        category: '',
-        description: '',
+        license: '',
+        countryId: '',
+        password: ''
     });
     const [isEditing, setIsEditing] = useState(false);
     const [searchCriteria, setSearchCriteria] = useState({
         name: '',
-        category: ''
+        license: ''
     });
 
-
     useEffect(() => {
-        loadProducts();
+        loadUsers();
     }, []);
 
-    const loadProducts = async () => {
-        const data = await productAPI.getAllProducts();
-        setProducts(data);
+    const loadUsers = async () => {
+        const data = await userAPI.getAllUsers();
+        setUsers(data.players);
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setSelectedProduct({ ...selectedProduct, [name]: value });
+        setSelectedUser({ ...selectedUser, [name]: value });
     };
 
     const handleSearchChange = (e) => {
@@ -38,88 +36,95 @@ const ProductManagement = () => {
         setSearchCriteria({ ...searchCriteria, [name]: value });
     };
 
-    const handleCreateUpdateProduct = async () => {
-        const token = localStorage.getItem('accessToken');
+    const handleCreateUpdateUser = async () => {
         if (isEditing) {
-            await productAPI.updateProduct(selectedProduct.id, selectedProduct);
+            await userAPI.updateUser(selectedUser.id, selectedUser);
         } else {
-            await productAPI.createProduct(selectedProduct, token);
+            await userAPI.createUser(selectedUser);
         }
-        loadProducts();
+        loadUsers();
         clearForm();
     };
 
-    const handleDeleteProduct = async (id) => {
-        await productAPI.deleteProduct(id);
-        loadProducts();
-    };
-
-    const handleSearchProducts = async () => {
-        const data = await productAPI.searchProducts(searchCriteria.name, searchCriteria.category);
-        setProducts(data);
+    const handleDeleteUser = async (id) => {
+        await userAPI.deleteUser(id);
+        loadUsers();
     };
 
     const clearForm = () => {
-        setSelectedProduct({
+        setSelectedUser({
             id: null,
             name: '',
-            price: '',
-            category: '',
-            description: ''
+            license: '',
+            countryId: '',
+            password: ''
         });
         setIsEditing(false);
     };
 
-    const handleSelectProduct = (product) => {
-        setSelectedProduct(product);
+    const handleSelectUser = (user) => {
+        setSelectedUser(user);
         setIsEditing(true);
+    };
+
+    const handleSearchUsers = async () => {
+        const { name, license } = searchCriteria;
+        const data = await userAPI.searchUsers(name, license);
+        setUsers(data);
     };
 
     return (
         <div style={styles.container}>
             <div style={styles.formContainer}>
-                <h2>{isEditing ? 'Edit Product' : 'Create Product'}</h2>
+                <h2>{isEditing ? 'Edit User' : 'Create User'}</h2>
                 <form>
                     <div style={styles.formGroup}>
                         <label>Name:</label>
                         <input
                             type="text"
                             name="name"
-                            value={selectedProduct.name}
+                            value={selectedUser.name}
                             onChange={handleInputChange}
                             required
                         />
                     </div>
                     <div style={styles.formGroup}>
-                        <label>Price:</label>
+                        <label>License:</label>
                         <input
                             type="number"
-                            name="price"
-                            value={selectedProduct.price}
+                            name="license"
+                            value={selectedUser.license}
                             onChange={handleInputChange}
                             required
                         />
                     </div>
                     <div style={styles.formGroup}>
-                        <label>Category:</label>
+                        <label>Country:</label>
+                        <select
+                            name="countryId"
+                            value={selectedUser.countryId}
+                            onChange={handleInputChange}
+                            required
+                        >
+                            {countries.map(country => (
+                                <option key={country.id} value={country.id}>
+                                    {country.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div style={styles.formGroup}>
+                        <label>Password:</label>
                         <input
-                            type="text"
-                            name="category"
-                            value={selectedProduct.category}
+                            type="password"
+                            name="password"
+                            value={selectedUser.password}
                             onChange={handleInputChange}
                             required
-                        />
-                    </div>
-                    <div style={styles.formGroup}>
-                        <label>Description:</label>
-                        <textarea
-                            name="description"
-                            value={selectedProduct.description}
-                            onChange={handleInputChange}
                         />
                     </div>
                     <div style={styles.buttonGroup}>
-                        <button type="button" onClick={handleCreateUpdateProduct}>
+                        <button type="button" onClick={handleCreateUpdateUser}>
                             {isEditing ? 'Update' : 'Create'}
                         </button>
                         {isEditing && <button type="button" onClick={clearForm}>Cancel</button>}
@@ -127,10 +132,10 @@ const ProductManagement = () => {
                 </form>
             </div>
             <div style={styles.listContainer}>
-                <h2>Search Products</h2>
+                <h2>Search Users</h2>
                 <div style={styles.searchGroup}>
                     <div style={styles.formGroup}>
-                        <label>Search by Name:</label>
+                        <label>Name:</label>
                         <input
                             type="text"
                             name="name"
@@ -139,27 +144,26 @@ const ProductManagement = () => {
                         />
                     </div>
                     <div style={styles.formGroup}>
-                        <label>Search by Category:</label>
+                        <label>License:</label>
                         <input
-                            type="text"
-                            name="category"
-                            value={searchCriteria.category}
+                            type="number"
+                            name="license"
+                            value={searchCriteria.license}
                             onChange={handleSearchChange}
                         />
                     </div>
-                    <button type="button" onClick={handleSearchProducts}>Search</button>
+                    <button type="button" onClick={handleSearchUsers}>Search</button>
                 </div>
-                <h2>Product List</h2>
-                <ul style={styles.productList}>
-                    {products.map(product => (
-                        <li key={product.id} style={styles.productListItem}>
+                <h2>User List</h2>
+                <ul style={styles.userList}>
+                    {users.map(user => (
+                        <li key={user.id} style={styles.userListItem}>
                             <div>
-                                <strong>{product.name}</strong> - ${product.price}
+                                <strong>{user.name}</strong> - License: {user.license}
                             </div>
-                            <div>{product.category}</div>
-                            <div>{product.description}</div>
-                            <button onClick={() => handleSelectProduct(product)}>Edit</button>
-                            <button onClick={() => handleDeleteProduct(product.id)}>Delete</button>
+                            {/*<div>Country: {getCountryNameById(user.countryId)}</div>*/}
+                            <button onClick={() => handleSelectUser(user)}>Edit</button>
+                            <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
                         </li>
                     ))}
                 </ul>
@@ -190,11 +194,11 @@ const styles = {
     searchGroup: {
         marginBottom: '20px',
     },
-    productList: {
+    userList: {
         listStyleType: 'none',
         padding: 0,
     },
-    productListItem: {
+    userListItem: {
         marginBottom: '10px',
         padding: '10px',
         border: '1px solid #ddd',
@@ -202,4 +206,4 @@ const styles = {
     },
 };
 
-export default ProductManagement;
+export default UserManagement;

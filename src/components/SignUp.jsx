@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AuthAPI from '../apis/AuthAPI.jsx';
+import { countries } from '../service/Countries';
 import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
@@ -7,7 +8,7 @@ const SignUp = () => {
     const [license, setLicense] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [countryId, setCountryId] = useState('');
+    const [countryId, setCountryId] = useState(countries[0].id);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -70,15 +71,22 @@ const SignUp = () => {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                     />
-                    <input
-                        type="text"
-                        placeholder="Country ID"
-                        value={countryId}
-                        onChange={(e) => setCountryId(e.target.value)}
-                        required
-                    />
+                    <label>
+                        Country:
+                        <select
+                            value={countryId}
+                            onChange={(e) => setCountryId(Number(e.target.value))}
+                            required
+                        >
+                            {countries.map(country => (
+                                <option key={country.id} value={country.id}>
+                                    {country.name}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
                     <button type="submit">Sign Up</button>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                    {error && <p style={{color: 'red'}}>{error}</p>}
                 </form>
             ) : (
                 <p>Loading...</p>

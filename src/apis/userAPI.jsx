@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://6c7c-145-93-149-178.ngrok-free.app/players';
-
+const API_URL = 'http://localhost:8080/players';
 
 const userAPI = {
     getAllUsers: (countryCode) => axios.get(API_URL, { params: { country: countryCode } }).then(response => response.data),

@@ -2,7 +2,7 @@ import axios from "axios";
 import TokenManager from "./TokenManager";
 
 const GolfBookingAPI = {
-    getPlayer: (playerId) => axios.get(`https://6c7c-145-93-149-178.ngrok-free.app/players/${playerId}`,
+    getPlayer: (playerId) => axios.get(`http://localhost:8080/players/${playerId}`,
         {
             headers: { Authorization: `Bearer ${TokenManager.getAccessToken()}` }
         })

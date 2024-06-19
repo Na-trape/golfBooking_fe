@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://6c7c-145-93-149-178.ngrok-free.app/products';
-
+const API_URL = 'http://localhost:8080/products';
 
 const productAPI = {
     getAllProducts: () => axios.get(API_URL).then(response => response.data),
